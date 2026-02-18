@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://172.16.10.228:5000");
 
 function VoiceChannel() {
   const peersRef = useRef([]);
@@ -10,12 +10,17 @@ function VoiceChannel() {
   const [joined, setJoined] = useState(false);
 
   const joinCall = async () => {
-    localStream.current = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-    });
+    try {
+      localStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
 
-    socket.emit("join-voice-room", "room1");
-    setJoined(true);
+      socket.emit("join-voice-room", "room1");
+      setJoined(true);
+    } catch (err) {
+      console.error("Error accessing media devices:", err);
+      alert("Could not access your microphone. Please ensure you have one connected and have granted permission. On mobile, this usually requires an HTTPS connection.");
+    }
   };
 
   useEffect(() => {
